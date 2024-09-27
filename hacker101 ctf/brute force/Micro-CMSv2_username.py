@@ -17,8 +17,9 @@ def check_username(username, url):
 
 found = False
 threads = []
-url = "https://{id}.ctf.hacker101.com/login"
-username_file = open("lists/names.txt", "r")
+url = "https://{id}.ctf.hacker101.com/login" # enter your own id in the link
+# username and password is different for each person, so this list might not solve it for others.
+username_file = open("lists/names.txt", "r") 
 for name in username_file.readlines():
     if found:
         break
