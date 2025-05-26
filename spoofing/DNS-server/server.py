@@ -3,6 +3,8 @@ import struct
 import json
 import threading
 
+# Spoofing does not work due to certificates not matching the uri.  
+
 # Load spoofed domains and their IPs
 with open('custom_domains.json') as f:
     custom_ips = json.load(f)
